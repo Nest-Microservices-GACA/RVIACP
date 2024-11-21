@@ -9,7 +9,7 @@ export class TestCasesController {
 
   @MessagePattern('testCases.findAll')
   findAll() {
-    return this.testCasesService.findAll();
+    return this.testCasesService.findAllAppTestCases();
   }
 
   @MessagePattern('testCases.addAppTestCases')

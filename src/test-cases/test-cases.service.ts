@@ -1,25 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateTestCaseDto, UpdateTestCaseDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Application } from './entities';
-import { Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
+import { Repository } from 'typeorm';
+
+import { Application } from './entities';
+import { UpdateTestCaseDto } from './dto';
 
 @Injectable()
 export class TestCasesService {
+
   private readonly logger = new Logger('AplicationService');
   constructor(
     @InjectRepository(Application)
     private readonly appRepository: Repository<Application>
   ){}
-
-  create(createTestCaseDto: CreateTestCaseDto) {
-    return 'This action adds a new testCase';
-  }
-
-  findAll() {
-    return `This action returns all testCases`;
-  }
 
   async addAppTestCases(idu_proyecto: string, updateTestCaseDto: UpdateTestCaseDto) {
     try {
@@ -53,6 +47,24 @@ export class TestCasesService {
       throw new RpcException({
         status: 'Error',
         message: `Hubo un error al añadir test case ${error}`,
+      });
+    }
+  }
+
+  async findAllAppTestCases() {
+    try {
+      const apps = await this.appRepository.createQueryBuilder('application')
+      .where("application.opc_arquitectura->>'3' = :value", { value: 'true' })
+      .getMany();;
+      
+      return apps || [];
+      
+    } catch (error) {
+      
+      this.logger.error('[test-cases.findAllAppTestCases.service]',error);
+      throw new RpcException({
+        status: 'Error',
+        message: `Hubo un error consultar app con test case: ${error}`,
       });
     }
   }
