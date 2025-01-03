@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { TestCasesModule } from './test-cases/test-cases.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { TestCasesModule } from './test-cases/test-cases.module';
 import { envs } from './config';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -19,8 +21,8 @@ import { envs } from './config';
       autoLoadEntities: true,
       synchronize:false
     }),
-
-    TestCasesModule
+    TestCasesModule,
+    CommonModule
   ],
   controllers: [],
   providers: [],

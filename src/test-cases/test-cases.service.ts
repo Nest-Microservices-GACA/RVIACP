@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 
 import { Application } from './entities';
 import { UpdateTestCaseDto } from './dto';
+import { CommonService } from '../common/common.service';
 
 @Injectable()
 export class TestCasesService {
@@ -12,7 +13,8 @@ export class TestCasesService {
   private readonly logger = new Logger('AplicationService');
   constructor(
     @InjectRepository(Application)
-    private readonly appRepository: Repository<Application>
+    private readonly appRepository: Repository<Application>,
+    private readonly encryptionService: CommonService
   ){}
 
   async addAppTestCases(idu_proyecto: string, updateTestCaseDto: UpdateTestCaseDto) {
@@ -30,9 +32,11 @@ export class TestCasesService {
       ...app.opc_arquitectura,
       [updateTestCaseDto.opcArquitectura]: true,
     };
-
+    
     app.opc_estatus_caso = 2;
     await this.appRepository.save(app);
+    
+    app.nom_aplicacion = this.encryptionService.decrypt(app.nom_aplicacion);
 
     // TODO: Implementar lógica para llamar a addons
     
@@ -51,7 +55,11 @@ export class TestCasesService {
       if(!apps){
         return { apps: [], total: 0 };
       }
-      
+
+      apps.forEach( app => {
+        app.nom_aplicacion = this.encryptionService.decrypt(app.nom_aplicacion);
+      });
+
       return { apps, total: apps.length };
       
     } catch (error) {
